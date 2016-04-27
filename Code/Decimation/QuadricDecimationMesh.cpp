@@ -46,10 +46,39 @@ void QuadricDecimationMesh::Initialize()
  */
 void QuadricDecimationMesh::computeCollapse(EdgeCollapse * collapse)
 {
-  // Compute collapse->position and collapse->cost here
-  // based on the quadrics at the edge endpoints
+	Matrix4x4<float> Q_inv;
+  Matrix4x4<float> Q = mQuadrics[ (e(collapse->halfEdge).vert) ];
+  Matrix4x4<float> Q_pair = mQuadrics[ (e(e( collapse->halfEdge).pair).vert) ];
+	Matrix4x4<float> Q_hat = Q + Q_pair;
+  Matrix4x4<float> Q_bar = Q_hat;
 
-  std::cerr << "computeCollapse in QuadricDecimationMesh not implemented.\n";
+  Vector4<float> base_vec = Vector4<float>(0, 0, 0, 1);	
+  Q_hat(3,0) = base_vec[0];
+	Q_hat(3,1) = base_vec[1];
+  Q_hat(3,2) = base_vec[2];
+  Q_hat(3,3) = base_vec[3];
+
+	Vector4<float> newPos;
+
+	if(!Q_hat.IsSingular())
+	{
+	  Q_inv = Q_hat.Inverse();
+    newPos = Q_inv * base_vec;
+  }
+	else{
+    Vector3<float> v1 = v(e(collapse->halfEdge).vert).pos;
+    Vector3<float> v2 = v(e(e(collapse->halfEdge).pair).vert).pos;
+
+		Vector3<float> v_pos = (v1  + v2) * 0.5f;		
+    newPos = Vector4<float>(v_pos[0], v_pos[1], v_pos[2], 1);
+  }
+
+  Vector4<float> res = Q_bar * newPos;
+  float collapseCost = newPos * res;
+
+	collapse->cost = collapseCost;
+	collapse->position = Vector3<float>(newPos[0], newPos[1], newPos[2]);
+	
 }
 
 /*! After each edge collapse the vertex properties need to be updated */
@@ -61,14 +90,20 @@ void QuadricDecimationMesh::updateVertexProperties(unsigned int ind)
 
 /*!
  * \param[in] indx vertex index, points into HalfEdgeMesh::mVerts
- */
+*/
 Matrix4x4<float> QuadricDecimationMesh::createQuadricForVert(unsigned int indx) const{
-  float q[4][4] = {{0,0,0,0},
+  
+	float q[4][4] = {{0,0,0,0},
                    {0,0,0,0},
                    {0,0,0,0},
                    {0,0,0,0}};
+ 
   Matrix4x4<float> Q(q);
+  std::vector<unsigned int> faces = FindNeighborFaces(indx);
 
+  for(int i = 0; i < faces.size(); i++){
+    Q += createQuadricForFace(faces[i]);
+  }
   // The quadric for a vertex is the sum of all the quadrics for the adjacent faces
   // Tip: Matrix4x4 has an operator +=
   return Q;
@@ -78,10 +113,20 @@ Matrix4x4<float> QuadricDecimationMesh::createQuadricForVert(unsigned int indx) 
  * \param[in] indx face index, points into HalfEdgeMesh::mFaces
  */
 Matrix4x4<float> QuadricDecimationMesh::createQuadricForFace(unsigned int indx) const{
+	Vector3<float> theNormal = f(indx).normal;
+  float a = theNormal[0]; 
+  float b = theNormal[1];
+  float c = theNormal[2];
+  float d = -(theNormal * v(e(f(indx).edge).vert).pos);
 
-  // Calculate the quadric (outer product of plane parameters) for a face
-  // here using the formula from Garland and Heckbert
-  return Matrix4x4<float>();
+	float q[4][4] = {{a*a,a*b,a*c,a*d},
+                   {b*a,b*b,b*c,b*d},
+                   {c*a,c*b,c*c,c*d},
+                   {d*a,d*b,d*c,d*d}};
+
+	Matrix4x4<float> Q(q);
+
+  return Q;
 }
 
 
@@ -104,4 +149,3 @@ void QuadricDecimationMesh::Render()
       glPopMatrix();
     }
 }
-
