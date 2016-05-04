@@ -787,7 +787,11 @@ void FrameMain::AddObjectImplicitMesh( wxCommandEvent& event )
 
 void FrameMain::AddObjectQuadricPlane( wxCommandEvent& event )
 {
-  Matrix4x4<float> M;
+  float q[4][4] = {{0,0,0,1},
+                   {0,0,0,1},
+                   {0,0,0,1},
+                   {0,0,0,0}};
+  Matrix4x4<float> M(q);
   // Construct the quadric matrix here
 
   Quadric * Q = new Quadric(M);
@@ -803,7 +807,11 @@ void FrameMain::AddObjectQuadricPlane( wxCommandEvent& event )
 
 void FrameMain::AddObjectQuadricCylinder( wxCommandEvent& event )
 {
-  Matrix4x4<float> M;
+  float q[4][4] = {{1,0,0,0},
+                   {0,1,0,0},
+                   {0,0,0,0},
+                   {0,0,0,-1}};
+  Matrix4x4<float> M(q);
   // Construct the quadric matrix here
 
   Quadric * Q = new Quadric(M);
@@ -819,7 +827,12 @@ void FrameMain::AddObjectQuadricCylinder( wxCommandEvent& event )
 
 void FrameMain::AddObjectQuadricEllipsoid( wxCommandEvent& event )
 {
-  Matrix4x4<float> M;
+  float q[4][4] = {{0.3f,0,0,0},
+                   {0,0.4f,0,0},
+                   {0,0,0.8f,0},
+                   {0,0,0,-1}};
+  Matrix4x4<float> M(q);
+
   // Construct the quadric matrix here
 
   Quadric * Q = new Quadric(M);
@@ -835,7 +848,11 @@ void FrameMain::AddObjectQuadricEllipsoid( wxCommandEvent& event )
 
 void FrameMain::AddObjectQuadricCone( wxCommandEvent& event )
 {
-  Matrix4x4<float> M;
+  float q[4][4] = {{1,0,0,0},
+                   {0,1,0,0},
+                   {0,0,-1,0},
+                   {0,0,0,0}};
+  Matrix4x4<float> M(q);
   // Construct the quadric matrix here
 
   Quadric * Q = new Quadric(M);
@@ -851,7 +868,11 @@ void FrameMain::AddObjectQuadricCone( wxCommandEvent& event )
 
 void FrameMain::AddObjectQuadricParaboloid( wxCommandEvent& event )
 {
-  Matrix4x4<float> M;
+  float q[4][4] = {{1,0,0,0},
+                   {0,1,0,0},
+                   {0,0,0,-1},
+                   {0,0,0,0}};
+  Matrix4x4<float> M(q);
   // Construct the quadric matrix here
 
   Quadric * Q = new Quadric(M);
@@ -867,7 +888,11 @@ void FrameMain::AddObjectQuadricParaboloid( wxCommandEvent& event )
 
 void FrameMain::AddObjectQuadricHyperboloid( wxCommandEvent& event )
 {
-  Matrix4x4<float> M;
+  float q[4][4] = {{1,0,0,0},
+                   {0,1,0,0},
+                   {0,0,-1,0},
+                   {0,0,0,1}};
+  Matrix4x4<float> M(q);
   // Construct the quadric matrix here
 
   Quadric * Q = new Quadric(M);
