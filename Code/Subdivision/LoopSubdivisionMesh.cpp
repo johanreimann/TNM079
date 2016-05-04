@@ -12,7 +12,7 @@
 
 #include "LoopSubdivisionMesh.h"
 #include <cassert>
-
+#include <math.h>
 /*! Subdivides the mesh uniformly one step
 */
 void LoopSubdivisionMesh::Subdivide()
@@ -103,7 +103,18 @@ Vector3<float> LoopSubdivisionMesh::VertexRule(unsigned int vertexIndex)
 {
   // Get the current vertex
   Vector3<float> vtx = v(vertexIndex).pos;
+  std::vector<unsigned int> oneRing = FindNeighborVertices(vertexIndex);
+  int k = oneRing.size();
+  
+  float beta = Beta(k);
 
+  //float w = (5.f / 8.f) - (pow((3.f + 2.f*cos(2.f * 3.141592f / k) ), 2) / (64.f));
+
+  vtx = vtx * (1 - k*beta); // w instead of beta
+
+  for(int i = 0; i < k; i++) {
+    vtx += v(oneRing[i]).pos * beta; // (w / k) instead of beta
+  }
 
   return vtx;
 }
@@ -113,13 +124,18 @@ Vector3<float> LoopSubdivisionMesh::VertexRule(unsigned int vertexIndex)
 */
 Vector3<float> LoopSubdivisionMesh::EdgeRule(unsigned int edgeIndex)
 {
-
   // Place the edge vertex halfway along the edge
-  HalfEdge & e0 = e(edgeIndex);
-  HalfEdge & e1 = e(e0.pair);
-  Vector3<float> & v0 = v(e0.vert).pos;
-  Vector3<float> & v1 = v(e1.vert).pos;
-  return (v0 + v1) * 0.5;
+  HalfEdge e0 = e(edgeIndex);
+  HalfEdge e1 = e(e0.pair);
+  Vector3<float> v0 = v(e0.vert).pos;
+  Vector3<float> v1 = v(e1.vert).pos;
+  Vector3<float> v2 = v(e(e0.prev).vert).pos;
+  Vector3<float> v3 = v(e(e1.prev).vert).pos;
+
+  Vector3<float> Vn = (v0 + v1) * 3.f * 0.125f;
+  Vn += (v2 + v3) * 0.125f;
+
+  return Vn;
 }
 
 //! Return weights for interior verts

@@ -19,8 +19,23 @@ void UniformCubicSplineSubdivisionCurve::Subdivide()
   assert(mCoefficients.size() > 4 && "Need at least 5 points to subdivide");
 
   // Implement the subdivision scheme for a natural cubic spline here
-
+  newc.push_back(mCoefficients.front());
+  int twiceSize = (2*mCoefficients.size())-1;
+  Vector3<float> newCoefficients;
+  for(int i = 1; i < twiceSize-1; i++){
+    
+    if( i % 2 ) {
+      newCoefficients = (1.0f/8.0f)*(4 * mCoefficients[i/2] + 4 * mCoefficients[(i/2 + 1)]);
+    }
+    else {
+      newCoefficients = (1.0f/8.0f)*(mCoefficients[(i/2 - 1)] + 6 * mCoefficients[(i/2)] + mCoefficients[(i/2 + 1)]);
+    }
+    newc.push_back(newCoefficients);
+  }
+  newc.push_back(mCoefficients.back());
   // If 'mCoefficients' had size N, how large should 'newc' be? Perform a check here!
+  if(newc.size() == twiceSize ){ std::cout<<"Correct!" << '\n'; }
+
   assert(true && "Incorrect number of new coefficients!");
 
  mCoefficients = newc;
