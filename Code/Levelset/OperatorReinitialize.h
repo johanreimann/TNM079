@@ -80,7 +80,7 @@ public :
     Godunov(i,j,k, sign, ddx2, ddy2, ddz2);
 
     // Compute the rate of change (dphi/dt)
-    return sign * (1 - std::sqrt(ddx2 + ddy2 + ddz2));
+    return sign * (1 - std::sqrt(ddx2 + ddy2 + ddz2) );
   }
 
 

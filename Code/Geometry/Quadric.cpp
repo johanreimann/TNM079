@@ -24,7 +24,11 @@ Quadric::~Quadric(){}
  */
 float Quadric::GetValue(float x, float y, float z) const
 {
-  return 0;
+  Vector4<float> p = Vector4<float>(x,y,z,1);
+
+  float result = p * ( this->mQuadric*p);
+
+  return result;
 }
 
 /*!
@@ -32,6 +36,15 @@ float Quadric::GetValue(float x, float y, float z) const
  */
 Vector3<float> Quadric::GetGradient(float x, float y, float z) const
 {
-  return Vector3<float>(0,0,0);
+ 
+
+  Matrix4x4<float> temp = this->mQuadric;
+  temp(3,0) = 0;
+	temp(3,1) = 0;
+  temp(3,2) = 0;
+  temp(3,3) = 0;
+  Vector4<float> result = 2 * (temp * Vector4<float>(x,y,z,1));
+  
+  return Vector3<float>(result[0], result[1], result[2]);
 }
 
